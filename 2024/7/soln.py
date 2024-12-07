@@ -2,46 +2,21 @@ import sys
 sys.setrecursionlimit(int(1e9))
 
 
-def evaluate(comb):
-    cur_symb = ""
-    st_num = []
+def get_all_combinations(nums, target):
+    if len(nums) <= 1:
+        return nums
 
-    for c in comb:
-        if c == '*' or c == '+':
-            if cur_symb == '+' or cur_symb == '*':
-                n1 = st_num.pop()
-                n2 = st_num.pop()
-                if cur_symb == '+':
-                    st_num.append(n1 + n2)
-                else:
-                    st_num.append(n1 * n2)
-            cur_symb = c
-        else:
-            st_num.append(c)
+    head = nums[len(nums) - 1]
+    combs = get_all_combinations(nums[:-1], target)
+    new_combs = []
+    for comb in combs:
+        if head + comb <= target:
+            new_combs.append(head + comb)
 
-    if cur_symb == '+' or cur_symb == '*':
-        n1 = st_num.pop()
-        n2 = st_num.pop()
-        if cur_symb == '+':
-            return n1 + n2
-        else:
-            return n1 * n2
-    return st_num.pop()
+        if head * comb <= target:
+            new_combs.append(head * comb)
 
-
-def get_all_combinations(nums):
-    combs = [[nums[0]]]
-
-    for i in range(1, len(nums)):
-        ll = len(combs)
-        for j in range(ll):
-            comb = combs[j]
-            comb1 = comb + ['+', nums[i]]
-            comb2 = comb + ['*', nums[i]]
-            combs.append(comb1)
-            combs.append(comb2)
-
-    return combs
+    return new_combs
 
 
 ans = 0
@@ -53,9 +28,9 @@ with open("input.txt") as file:
         nums = list(map(lambda x: int(x), numsS))
         res = int(res)
 
-        combinations = get_all_combinations(nums)
+        combinations = get_all_combinations(nums, res)
         for comb in combinations:
-            if len(comb) == 2*len(nums) - 1 and evaluate(comb) == res:
+            if comb == res:
                 ans += res
                 break
 
