@@ -59,9 +59,8 @@ with open("input.txt") as file:
     line = file.read().strip()
     nums = list(map(int, line.split()))
 
-    cs = [num for num in nums]
-    for comp in cs:
-        an = calculate(comp, 25)
+    for num in nums:
+        an = calculate(num, 25)
         ans += an
 
     print(ans)
