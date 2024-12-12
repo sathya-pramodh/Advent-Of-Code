@@ -3,47 +3,62 @@ sys.setrecursionlimit(int(1e9))
 
 graph = []
 
-def visit_all_neighbors(graph, i, j, m, n, visited, col):
+
+def out_of_bounds(r, c, m, n):
+    return r < 0 or r >= m or c < 0 or c >= n
+
+
+def visit_all_neighbors(graph, i, j, m, n, visited, col, group_no):
     if graph[i][j] != col:
         return []
-    
-    visited[i][j] = 1
-    
+
+    visited[i][j] = group_no
+
     ans = []
-    dr = [[1,0], [0,1], [-1, 0], [0, -1]]
+    dr = [[1, 0], [0, 1], [-1, 0], [0, -1]]
     ans.append((i, j))
     for ii, jj in dr:
         r = i + ii
         c = j + jj
-        if r < 0 or r >= m or c < 0 or c >= n:
+        if out_of_bounds(r, c, m, n):
             continue
-        if not visited[r][c]:
-            ans = ans + visit_all_neighbors(graph, r, c, m, n, visited, col)
+        if visited[r][c] != group_no:
+            ans = ans + \
+                visit_all_neighbors(graph, r, c, m, n, visited, col, group_no)
 
     return ans
 
-def check_neigh(graph, i, j, m, n, visited):
-    sd = 0
-    dr = [[1,0], [0,1], [-1, 0], [0, -1]]
-    rr = []
-    for idx, (ii, jj) in enumerate(dr):
-        r = i + ii
-        c = j + jj
-        if r < 0 or r >= m or c < 0 or c >= n:
-            rr.append((r, c, idx))
-            continue
-        if visited[r][c]:
-            rr.append((r, c, idx))
-    if len(rr) == 2:
-        _, _, d1 = rr[0]
-        _, _, d2 = rr[1]
-        if d1 != 0 and d2 != 2 or d1 != 1 or d2 != 3:
-            sd = 2
-    elif len(rr) == 1:
-        sd = 1
-    elif len(rr) == 0:
-        sd = 4
-    return sd
+
+def corners(graph, i, j, m, n, visited, group_no):
+    cnt = 0
+    dr1 = [[1, 0], [0, 1], [1, 1]]
+    dr2 = [[0, 1], [-1, 0], [-1, 1]]
+    dr3 = [[-1, 0], [0, -1], [-1, -1]]
+    dr4 = [[0, -1], [1, 0], [1, -1]]
+
+    for dr in [dr1, dr2, dr3, dr4]:
+        ii, jj = dr[0]
+        iii, jjj = dr[1]
+        iiii, jjjj = dr[2]
+        r1, c1 = i + ii, j + jj
+        r2, c2 = i + iii, j + jjj
+        r3, c3 = i + iiii, j + jjjj
+        if out_of_bounds(r1, c1, m, n) and out_of_bounds(r2, c2, m, n):
+            cnt += 1
+        elif out_of_bounds(r1, c1, m, n):
+            if visited[r2][c2] != group_no:
+                cnt += 1
+        elif out_of_bounds(r2, c2, m, n):
+            if visited[r1][c1] != group_no:
+                cnt += 1
+        else:
+            if visited[r1][c1] != group_no and visited[r2][c2] != group_no:
+                cnt += 1
+            elif visited[r1][c1] == group_no and visited[r2][c2] == group_no and visited[r3][c3] != group_no:
+                cnt += 1
+
+    return cnt
+
 
 unq = set()
 with open("input.txt") as file:
@@ -56,7 +71,7 @@ with open("input.txt") as file:
             graph[i].append(c)
             unq.add(c)
         i += 1
-    
+
     m = len(graph)
     n = len(graph[0])
 
@@ -64,16 +79,17 @@ ans = 0
 for c in unq:
     visited = [[0]*n for _ in range(m)]
     char_ans = 0
+    group_no = 1
     for i in range(m):
         for j in range(n):
-            if not visited[i][j]:
-                neighs = visit_all_neighbors(graph, i, j, m, n, visited, c)
-                area, sides = len(neighs), 0
+            if visited[i][j] == 0:
+                neighs = visit_all_neighbors(
+                    graph, i, j, m, n, visited, c, group_no)
+                area = len(neighs)
+                sides = 0
                 for row, col in neighs:
-                    sd = check_neigh(graph, row, col, m, n, visited)
-                    sides += sd
-                print(c, area, sides)
-
+                    sides += corners(graph, row, col, m, n, visited, group_no)
+                group_no += 1
                 char_ans += area*sides
 
     ans += char_ans

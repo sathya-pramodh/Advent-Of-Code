@@ -3,14 +3,15 @@ sys.setrecursionlimit(int(1e9))
 
 graph = []
 
+
 def visit_all_neighbors(graph, i, j, m, n, visited, col):
     if graph[i][j] != col:
         return []
-    
+
     visited[i][j] = 1
-    
+
     ans = []
-    dr = [[1,0], [0,1], [-1, 0], [0, -1]]
+    dr = [[1, 0], [0, 1], [-1, 0], [0, -1]]
     ans.append((i, j))
     for ii, jj in dr:
         r = i + ii
@@ -22,10 +23,11 @@ def visit_all_neighbors(graph, i, j, m, n, visited, col):
 
     return ans
 
+
 def check_neigh(graph, i, j, m, n, visited):
-    ar = 1  
+    ar = 1
     pe = 4
-    dr = [[1,0], [0,1], [-1, 0], [0, -1]]
+    dr = [[1, 0], [0, 1], [-1, 0], [0, -1]]
     for ii, jj in dr:
         r = i + ii
         c = j + jj
@@ -35,6 +37,7 @@ def check_neigh(graph, i, j, m, n, visited):
             pe -= 1
 
     return ar, pe
+
 
 unq = set()
 with open("input.txt") as file:
@@ -47,7 +50,7 @@ with open("input.txt") as file:
             graph[i].append(c)
             unq.add(c)
         i += 1
-    
+
     m = len(graph)
     n = len(graph[0])
 
