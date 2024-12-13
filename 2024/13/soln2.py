@@ -5,36 +5,35 @@ MAX = 10000000000000
 blocks = []
 i = 0
 with open("input.txt") as file:
-    lines = file.readlines()
+    lines = file.read()
     inc = {
         "A": [0, 0],
         "B": [0, 0],
     }
     tgt = [0, 0]
-    for line in lines:
-        if line == "\n":
-            blocks.append((inc, tgt))
-            i += 1
-            inc = {
-                "A": [0, 0],
-                "B": [0, 0],
-            }
-            tgt = [0, 0]
-            continue
-        if "Prize" not in line:
-            block_id, contents = line.split(":")
-            block_id = block_id.replace("Button ", "")
-            x, y = contents.strip().split(",")
-            x = int(x.replace("X+", ""))
-            y = int(y.replace("Y+", ""))
-            inc[block_id] = [x, y]
-        else:
-            _, contents = line.split(":")
-            x, y = contents.strip().split(",")
-            x = int(x.replace("X=", ""))
-            y = int(y.replace("Y=", ""))
-            tgt = [x + MAX, y + MAX]
-    
+    for blk in lines.split("\n\n"):
+        for line in blk.strip().split("\n"):
+            if "Prize" not in line:
+                block_id, contents = line.split(":")
+                block_id = block_id.replace("Button ", "")
+                x, y = contents.strip().split(",")
+                x = int(x.replace("X+", ""))
+                y = int(y.replace("Y+", ""))
+                inc[block_id] = [x, y]
+            else:
+                _, contents = line.split(":")
+                x, y = contents.strip().split(",")
+                x = int(x.replace("X=", ""))
+                y = int(y.replace("Y=", ""))
+                tgt = [MAX + x, MAX + y]
+                blocks.append((inc, tgt))
+                i += 1
+                inc = {
+                    "A": [0, 0],
+                    "B": [0, 0],
+                }
+                tgt = [0, 0]
+
     ans = 0
     for inc, tgt in blocks:
         x, y = tgt
