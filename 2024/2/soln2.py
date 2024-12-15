@@ -1,3 +1,12 @@
+import sys
+try:
+    sys.path.append("../../")
+except ImportError:
+    exit(1)
+
+import lib.python.inputs as I
+
+
 def is_valid(nums):
     sign = 0
     for i in range(1, len(nums)):
@@ -17,13 +26,11 @@ def is_valid(nums):
     return True
 
 
-with open("input.txt", "r") as file:
-    lines = file.readlines()
-    ans = 0
-    for line in lines:
-        nums = list(map(int, line.split(" ")))
-        for i in range(len(nums)):
-            if is_valid(nums[:i] + nums[i + 1:]):
-                ans += 1
-                break
-    print(ans)
+N = I.nums("input.txt")
+ans = 0
+for nums in N:
+    for i in range(len(nums)):
+        if is_valid(nums[:i] + nums[i + 1:]):
+            ans += 1
+            break
+print(ans)

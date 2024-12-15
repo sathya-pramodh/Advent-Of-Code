@@ -1,4 +1,10 @@
 import sys
+try:
+    sys.path.append("../../")
+except ImportError:
+    exit(1)
+import lib.python.inputs as I
+import lib.python.parsers as P
 import time
 import os
 sys.setrecursionlimit(int(1e9))
@@ -60,46 +66,41 @@ def solve(graph, start, m, n, dir):
     return start
 
 
-with open("input.txt") as file:
-    s = file.read().strip()
-    s1, s2 = s.split("\n\n")
-    lines = s1.split("\n")
+Gs, Ms = I.blocks("input.txt")
+graph = P.parse_to_grid(Gs)
+start = (0, 0)
+for i, row in enumerate(graph):
+    for j, c in enumerate(row):
+        if c == "@":
+            start = (i, j)
+            break
+moves = []
+for c in Ms:
+    if c == '^':
+        moves.append([-1, 0])
+    elif c == 'v':
+        moves.append([1, 0])
+    elif c == '<':
+        moves.append([0, -1])
+    elif c == '>':
+        moves.append([0, 1])
 
-    graph = []
-    start = (0, 0)
-    for i, line in enumerate(lines):
-        graph.append([])
-        for j, c in enumerate(line):
-            graph[i].append(c)
-            if c == "@":
-                start = (i, j)
-    moves = []
-    for c in s2:
-        if c == '^':
-            moves.append([-1, 0])
-        elif c == 'v':
-            moves.append([1, 0])
-        elif c == '<':
-            moves.append([0, -1])
-        elif c == '>':
-            moves.append([0, 1])
-
-    m = len(graph)
-    n = len(graph[0])
-    for mov in moves:
-        os.system("clear")
-        for row in graph:
-            for c in row:
-                print(c, end="")
-            print()
+m = len(graph)
+n = len(graph[0])
+for mov in moves:
+    os.system("clear")
+    for row in graph:
+        for c in row:
+            print(c, end="")
         print()
-        start = solve(graph, start, m, n, mov)
-        # time.sleep(1/144)
+    print()
+    start = solve(graph, start, m, n, mov)
+    # time.sleep(1/144)
 
-    ans = 0
-    for i, row in enumerate(graph):
-        for j, c in enumerate(row):
-            if c == "O":
-                ans += 100*i + j
+ans = 0
+for i, row in enumerate(graph):
+    for j, c in enumerate(row):
+        if c == "O":
+            ans += 100*i + j
 
-    print(ans)
+print(ans)
