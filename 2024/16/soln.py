@@ -59,8 +59,7 @@ while pq:
         ww = 1001 if check_90(dirn, (ii, jj)) else 1
         if ww + dist[u[0]][u[1]] < dist[r][c]:
             dist[r][c] = ww + dist[u[0]][u[1]]
-
-        heapq.heappush(pq, (dist[r][c], (r, c), (ii, jj)))
+            heapq.heappush(pq, (dist[r][c], (r, c), (ii, jj)))
 
 
 print(dist[end[0]][end[1]])

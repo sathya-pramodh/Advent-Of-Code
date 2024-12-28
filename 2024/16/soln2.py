@@ -24,6 +24,10 @@ def check_90(prev, now):
     return prev[0]*now[0] + prev[1]*now[1] == 0
 
 
+def check_180(prev, now):
+    return prev[0]*now[0] < 0 or prev[1]*now[1] < 0
+
+
 G = I.grid("input.txt")
 start = (0, 0)
 end = (0, 0)
@@ -35,17 +39,15 @@ for i, row in enumerate(G):
             end = (i, j)
 
 
-def dijkstra(G, start, end, init_dir=[0, 1]):
+def dijkstra(start, end, init_dir=[0, 1]):
     INF = int(1e20)
     m = len(G)
     n = len(G[0])
-    dist = [[INF for _ in range(n)] for _ in range(m)]
-    dist[start[0]][start[1]] = 0
+    dist = [[[INF, None] for _ in range(n)] for _ in range(m)]
+    dist[start[0]][start[1]] = [0, init_dir]
 
     pq = []
-    heapq.heappush(pq, (0, start, init_dir))
-    paths = [[[] for _ in range(n)] for _ in range(m)]
-    paths[start[0]][start[1]] = [start]
+    heapq.heappush(pq, ([0, init_dir], start, init_dir))
 
     while pq:
         w, u, dirn = heapq.heappop(pq)
@@ -60,31 +62,46 @@ def dijkstra(G, start, end, init_dir=[0, 1]):
             if G[r][c] == "#":
                 continue
 
-            ww = 1001 if check_90(dirn, (ii, jj)) else 1
-            if ww + dist[u[0]][u[1]] < dist[r][c]:
-                dist[r][c] = ww + dist[u[0]][u[1]]
-                paths[r][c] = paths[u[0]][u[1]] + [(r, c)]
+            ww = 1001 if check_90(dirn, (ii, jj)) else (
+                1 if not check_180(dirn, (ii, jj)) else 2001)
+            if ww + dist[u[0]][u[1]][0] < dist[r][c][0]:
+                dist[r][c] = [ww + dist[u[0]][u[1]][0], (ii, jj)]
                 heapq.heappush(pq, (dist[r][c], (r, c), (ii, jj)))
 
-    return paths[end[0]][end[1]], dist[end[0]][end[1]]
+    return dist
 
 
-primary, min_dist = dijkstra(G, start, end)
-F = set()
-F.add(start)
-F.add(end)
-for node in primary[1:len(primary) - 1]:
-    GG = deepcopy(G)
-    GG[node[0]][node[1]] = "#"
-    for row in GG:
+def print_g(G):
+    import os
+    import time
+    os.system("clear")
+    for row in G:
         for c in row:
             print(c, end="")
         print()
-    secondary, distt = dijkstra(GG, start, end)
-    if distt > min_dist:
-        continue
-    for n in secondary[1:len(primary) - 1]:
-        F.add(n)
+    time.sleep(1/60)
 
-print(F)
-print(len(F))
+
+cnt = 0
+from_start = dijkstra(start, end)
+visited = []
+for i, row in enumerate(G):
+    for j, c in enumerate(row):
+        dirn = from_start[i][j][1]
+        if dirn is None:
+            continue
+        to_end = dijkstra((i, j), end, init_dir=dirn)
+        if (i, j) in visited:
+            continue
+        if from_start[i][j][0] + to_end[end[0]][end[1]][0] == from_start[end[0]][end[1]][0]:
+            G[i][j] = "O"
+            print_g(G)
+            visited.append((i, j))
+            cnt += 1
+
+for row in G:
+    for c in row:
+        print(c, end="")
+    print()
+
+print(cnt)
