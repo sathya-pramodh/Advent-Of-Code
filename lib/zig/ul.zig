@@ -21,3 +21,31 @@ pub fn fileReadLines(allocator: std.mem.Allocator, file: std.fs.File, lines: *st
     }
     return buffer;
 }
+
+pub fn fileReadGrid(allocator: std.mem.Allocator, file: std.fs.File, grid: *std.ArrayList(std.ArrayList(i64))) ![]u8 {
+    var lines = std.ArrayList([]u8).init(allocator);
+    defer lines.deinit();
+    const buf = try fileReadLines(allocator, file, &lines);
+    for (lines.items) |line| {
+        var line_parsed = std.ArrayList(i64).init(allocator);
+        var iter = split(u8, line, " ");
+        while (iter.next()) |num_str| {
+            const val = try parseInt(i64, num_str, 10);
+            try line_parsed.append(val);
+        }
+        try grid.append(line_parsed);
+    }
+    return buf;
+}
+
+pub fn copyExcluding(list: std.ArrayList(i64), cpy: *std.ArrayList(i64), idx: usize) !void {
+    var i: usize = 0;
+    while (i < list.items.len) {
+        if (i == idx) {
+            i += 1;
+            continue;
+        }
+        try cpy.append(list.items[i]);
+        i += 1;
+    }
+}
