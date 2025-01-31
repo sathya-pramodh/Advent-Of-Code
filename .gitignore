@@ -1,3 +1,5 @@
 *.bin
 *.txt
 *__pycache__
+*zig-out
+*.zig-cache
