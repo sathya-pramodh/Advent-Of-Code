@@ -38,6 +38,21 @@ pub fn fileReadGrid(allocator: std.mem.Allocator, file: std.fs.File, grid: *std.
     return buf;
 }
 
+pub fn fileReadBlocks(allocator: std.mem.Allocator, file: std.fs.File, blocks: *[2]std.ArrayList([]u8)) ![]u8 {
+    var lines = std.ArrayList([]u8).init(allocator);
+    defer lines.deinit();
+    const buf = try fileReadLines(allocator, file, &lines);
+    var curIdx: usize = 0;
+    for (lines.items) |line| {
+        if (std.mem.eql(u8, line, "")) {
+            curIdx += 1;
+            continue;
+        }
+        try blocks[curIdx].append(line);
+    }
+    return buf;
+}
+
 pub fn copyExcluding(list: std.ArrayList(i64), cpy: *std.ArrayList(i64), idx: usize) !void {
     var i: usize = 0;
     while (i < list.items.len) {
